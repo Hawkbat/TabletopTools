@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Fair Stat Roller</title>
+	<style>
+		html,
+		body {
+			min-height: 100%;
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+
+		body {
+			display: flex;
+			background: #eee;
+			justify-content: center;
+			align-items: center;
+			font-family: sans-serif;
+			font-size: 16px;
+		}
+
+		.main {
+			display: flex;
+			flex-direction: column;
+			background: #fff;
+			width: 100%;
+			max-width: 320px;
+			min-height: 100%;
+			margin-top: 10px;
+			border-radius: 5px;
+			box-shadow: 0px 1px 5px gray;
+		}
+
+		.row {
+			display: flex;
+			padding: 5px;
+		}
+
+		.row>* {
+			flex: 1 0 0;
+		}
+
+		.col {
+			display: flex;
+			flex-direction: column;
+		}
+
+		table {
+			width: 100%;
+			box-shadow: inset 0px 1px 5px gray;
+			padding: 2px;
+		}
+
+		td {
+			text-align: center;
+			border-top: 1px solid #ddd;
+		}
+
+		label {
+			white-space: nowrap;
+		}
+
+		table {
+			background: #eee;
+			border-radius: 5px;
+		}
+
+		h1,
+		h2,
+		h3 {
+			margin-bottom: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="main">
+		<div class="row">
+			<h1>Fair Stat Roller</h1>
+		</div>
+		<div class="row">
+			This tool generates a set of random stat blocks with a predictable total power level.
+		</div>
+		<div class="row">
+			<label>Lowest Stat</label>
+			<input type="number" id="ld" value="3">
+		</div>
+		<div class="row">
+			<label>Highest Stat</label>
+			<input type="number" id="hd" value="18">
+		</div>
+		<div class="row">
+			<label>Lowest Total</label>
+			<input type="number" id="lt" value="72">
+		</div>
+		<div class="row">
+			<label>Highest Total</label>
+			<input type="number" id="ht" value="72">
+		</div>
+		<div class="row">
+			<label>Count</label>
+			<input type="number" id="count" value="10">
+		</div>
+		<div class="row">
+			<button onclick="run()">Generate</button>
+		</div>
+		<div class="row">
+			<table id="stats"></table>
+		</div>
+		<div class="row">
+			<h3>Details</h3>
+		</div>
+		<div class="row">
+			In D&amp;D 5th Edition there are two methods for determining character stats, namely rolling 4d6 and dropping the lowest or using point buy with a standard array.
+		</div>
+		<div class="row">
+			With rolled stats, stats are between 3 and 18, and the total can range from 18 to 108. With point buy, stats are between 6 and 15 and the total will be exactly 72.
+		</div>
+		<div class="row">
+			Using the default values for this generator will generate stat blocks with the same total as the standard array but the stat range of rolling stats.
+		</div>
+	</div>
+	<script>
+		function run() {
+			var count = parseInt(document.getElementById('count').value)
+
+			var ld = parseInt(document.getElementById('ld').value)
+			var hd = parseInt(document.getElementById('hd').value)
+
+			var lt = parseInt(document.getElementById('lt').value)
+			var ht = parseInt(document.getElementById('ht').value)
+
+			var s = []
+			var d = {}
+
+			for (var i0 = ld; i0 <= hd; i0++) {
+				for (var i1 = ld; i1 <= hd; i1++) {
+					for (var i2 = ld; i2 <= hd; i2++) {
+						for (var i3 = ld; i3 <= hd; i3++) {
+							for (var i4 = ld; i4 <= hd; i4++) {
+								for (var i5 = ld; i5 <= hd; i5++) {
+									var t = i0 + i1 + i2 + i3 + i4 + i5
+									if (t < lt || t > ht) continue
+									var a = [i0, i1, i2, i3, i4, i5].sort((a, b) => a - b)
+									var h = a.join(':')
+									if (d[h]) continue
+									d[h] = true
+									s.push(a)
+								}
+							}
+						}
+					}
+				}
+			}
+
+			function shuffle(array) {
+				for (let i = array.length - 1; i > 0; i--) {
+					var j = Math.floor(Math.random() * (i + 1))
+					[array[i], array[j]] = [array[j], array[i]]
+				}
+				return array
+			}
+
+			function rand(array) {
+				return array[Math.floor(Math.random() * array.length)].slice()
+			}
+
+			var r = []
+
+			for (var i = 0; i < count; i++) {
+				r.push(shuffle(rand(s)))
+			}
+
+			var o = '<tr><th>' + ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'].join('</th><th>') + '</th></tr>'
+			o += '<tr>' + r.map(a => '<td>' + a.join('</td><td>') + '</td>').join('</tr><tr>') + '</tr>'
+
+			document.getElementById('stats').innerHTML = o
+		}
+
+		run()
+	</script>
+</body>
+
+</html>
